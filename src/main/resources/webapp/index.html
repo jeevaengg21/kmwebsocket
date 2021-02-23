@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Websocket sample</title>
+</head>
+<body>
+    <h1>Websocket sample</h1>
+    <div style="text-align: center;">
+        <form action="">
+            <table>
+                <tr>
+                    <td>
+                        Responses
+                        <br/>
+                        <textarea readonly="true" rows="6" cols="50" id="responseField"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input id="textField" name="name" type="text" placeholder="Enter name ...">
+                        <input onclick="sendMessage();" value="Send" type="button">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <br/>
+    <div id="output"></div>
+    <script language="javascript" type="text/javascript" src="websocket.js"></script>
+</body>
