@@ -18,7 +18,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-
 /**
  *
  * @author martin
@@ -43,10 +42,11 @@ public class CustomerEndpoint implements Serializable {
     }
 
     @OnMessage
-    public String greetCustomer(Session session, String name) {
+    public void greetCustomer(Session session, String name) {
         System.out.print("Preparing greeting for customer '" + name + "' ...");
-
-        return "Hello, " + name + "!";
+        session.getAsyncRemote().sendText("Hello, " + name + "!" + System.getenv());
+        session.getAsyncRemote().sendText("Props :: " + System.getProperties());
+//        return ;
 
     }
 
@@ -55,7 +55,7 @@ public class CustomerEndpoint implements Serializable {
         session.setMaxIdleTimeout(900000L);
         String queryString = session.getQueryString();
         System.out.println("queryString :: " + queryString);
-        System.out.println("onOpen sessionid :: " + session.getId());        
+        System.out.println("onOpen sessionid :: " + session.getId());
         sessionStore.getSession().add(session);
     }
 
@@ -71,7 +71,7 @@ public class CustomerEndpoint implements Serializable {
                 if (session.isOpen()) {
                     session.getBasicRemote().sendText("Welcome !!");
                 }
-            }    
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
