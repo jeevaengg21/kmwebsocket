@@ -5,7 +5,15 @@
 package com.svm.kmwebsocket;
 
 import com.svm.kmwebsocket.jazrs.SessionStore;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
@@ -46,7 +54,55 @@ public class CustomerEndpoint implements Serializable {
         System.out.print("Preparing greeting for customer '" + name + "' ...");
         session.getAsyncRemote().sendText("Hello, " + name + "!" + System.getenv());
         session.getAsyncRemote().sendText("Props :: " + System.getProperties());
-//        return ;
+        session.getAsyncRemote().sendText(getMetaInfo());
+    }
+
+    private String getMetaInfo() {
+        StringBuilder response = new StringBuilder();
+        BufferedReader in = null;
+        HttpURLConnection con = null;
+        DataOutputStream wr = null;
+        String inputLine;
+        String url = null;
+        try {
+            url = (String) System.getenv().get("ECS_CONTAINER_METADATA_URI_V4");
+            con = (HttpURLConnection) new URL(url).openConnection();
+            con.setConnectTimeout(Integer.valueOf(System.getProperty("http_con_timeout", "30000")));
+            con.setConnectTimeout(Integer.valueOf(System.getProperty("http_read_timeout", "30000")));
+            con.setDoOutput(true);
+            in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            return response.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Exception connecting URL :: " + url);
+        } finally {
+            if (wr != null) {
+                try {
+                    wr.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(CustomerEndpoint.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(CustomerEndpoint.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+            if (con != null) {
+                con.disconnect();
+            }
+
+        }
+        return "Error";
 
     }
 
