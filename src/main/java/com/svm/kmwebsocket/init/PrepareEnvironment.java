@@ -32,15 +32,19 @@ public class PrepareEnvironment implements Serializable {
         try {
             System.out.println("CustomerEndpoint StartupListener Ready...");
             String metainfo = getMetaInfo();
-            Gson gson = new Gson();
-            Map metamap = gson.fromJson(metainfo, Map.class);
-            Map metaLabelsMap = (Map) metamap.get("Labels");
-            String task_arn = (String) metaLabelsMap.get("com.amazonaws.ecs.task-arn");
-            int last_separator = task_arn.lastIndexOf("/");
-            String task_id = task_arn.substring(last_separator + 1);
-            System.setProperty("ECS_CONTAINER_METADATA_INFO", metainfo);
-            System.setProperty("ECS_CONTAINER_TASK_ID", task_id);
+            if (metainfo != null) {
+                Gson gson = new Gson();
+                Map metamap = gson.fromJson(metainfo, Map.class);
+                Map metaLabelsMap = (Map) metamap.get("Labels");
+                String task_arn = (String) metaLabelsMap.get("com.amazonaws.ecs.task-arn");
+                int last_separator = task_arn.lastIndexOf("/");
+                String task_id = task_arn.substring(last_separator + 1);
+                System.setProperty("ECS_CONTAINER_METADATA_INFO", metainfo);
+                System.setProperty("ECS_CONTAINER_TASK_ID", task_id);
+            }
+
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -89,7 +93,7 @@ public class PrepareEnvironment implements Serializable {
             }
 
         }
-        return "Error";
+        return null;
 
     }
 }
