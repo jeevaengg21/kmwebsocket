@@ -23,19 +23,31 @@ import javax.ws.rs.Path;
 @Path("/sample")
 @RequestScoped
 public class SampleService implements Serializable {
- 
+
     @Inject
     CustomerEndpoint customerEndpoint;
 
     @GET
     @Path("/welcome")
-    public String ping() {        
+    public String ping() {
         try {
             customerEndpoint.sendWelcomeMessage();
         } catch (Exception ex) {
             Logger.getLogger(SampleService.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        return "done";
+        return "done :: " + getEcsTaskId();
+    }
+
+    @GET
+    @Path("/container/taskid")
+    public String getEcsTaskId() {
+        return (String) System.getProperty("ECS_CONTAINER_TASK_ID", "N/A");
+    }
+
+    @GET
+    @Path("/container/metainfo")
+    public String getEcsMetainfo() {
+        return (String) System.getProperty("ECS_CONTAINER_METADATA_INFO", "N/A");
     }
 }
